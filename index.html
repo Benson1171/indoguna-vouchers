@@ -4301,11 +4301,13 @@ function clearNewFormAdvanceLink() {
 ══════════════════════════════════════════ */
 const STORAGE_KEY = 'indoguna_pvs_v8';
 const STORAGE_VERSION = 8;
+const USERS_VERSION = 2; // increment this whenever you update the users list
 
 function saveToStorage() {
   try {
     const payload = {
       version: STORAGE_VERSION,
+      usersVersion: USERS_VERSION,
       savedAt: new Date().toISOString(),
       vouchers,
       vendors,
@@ -4336,7 +4338,13 @@ function loadFromStorage() {
     }
     if (data.vouchers)      vouchers       = data.vouchers;
     if (data.vendors)       vendors        = data.vendors;
-    if (data.users)         users          = data.users;
+    // Only restore saved users if they match current USERS_VERSION
+    // This ensures new user lists in code always override old localStorage
+    if (data.users && data.usersVersion === USERS_VERSION) {
+      users = data.users;
+    } else {
+      console.log('Users updated — using new user list from code');
+    }
     if (data.notifications) notifications  = data.notifications;
     if (data.vSerials)      vSerials       = data.vSerials;
     if (data._sapConfig)    _sapConfig     = data._sapConfig;
