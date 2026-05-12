@@ -2593,11 +2593,25 @@ function calcLine(i) {
   const ln = _newLines[i]; if (!ln) return;
   ln.vat = ln.vatExempt ? 0 : Math.round(ln.amount * 0.05 * 100) / 100;
   ln.total = Math.round((ln.amount + ln.vat) * 100) / 100;
-  renderLineItems();
+  // Update only the calculated cells in-place — do NOT re-render the table
+  // This prevents focus loss while typing
+  const rows = document.querySelectorAll('#nf-lines-body tr');
+  if (rows[i]) {
+    const cells = rows[i].querySelectorAll('td');
+    // cells: 0=#, 1=sapInv, 2=vendorInv, 3=desc, 4=amount, 5=vatExempt, 6=vat, 7=total, 8=delete
+    if (cells[6]) cells[6].textContent = ln.vat > 0 ? ln.vat.toFixed(2) : '—';
+    if (cells[7]) cells[7].textContent = ln.total > 0 ? ln.total.toFixed(2) : '—';
+  }
+  updateLineTotals();
 }
 
 function recalcAllLines() {
-  _newLines.forEach((_,i) => calcLine(i));
+  _newLines.forEach((_, i) => {
+    const ln = _newLines[i];
+    ln.vat = ln.vatExempt ? 0 : Math.round(ln.amount * 0.05 * 100) / 100;
+    ln.total = Math.round((ln.amount + ln.vat) * 100) / 100;
+  });
+  updateLineTotals();
 }
 
 function addNewLine() {
