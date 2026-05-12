@@ -1627,7 +1627,7 @@ function getDocsForNature(payNature) {
 const FILE_ICONS = { pdf:'ti-file-type-pdf',doc:'ti-file-type-doc',docx:'ti-file-type-doc',xls:'ti-file-type-xls',xlsx:'ti-file-type-xls',jpg:'ti-photo',jpeg:'ti-photo',png:'ti-photo',gif:'ti-photo',txt:'ti-file-text' };
 const FILE_COLORS = { pdf:'#8B1F1F',doc:'#1A5488',docx:'#1A5488',xls:'#2D6A2D',xlsx:'#2D6A2D',jpg:'#7A4A10',jpeg:'#7A4A10',png:'#7A4A10',default:'#3D3D3A' };
 
-let currentUserId = 'USR001';
+let currentUserId = 'USR002'; // Default: Janine M (Finance Assistant)
 let editingUID = null;
 let confirmCb = null;
 let vCounter = 15; // next voucher = VU-2026-015
@@ -1685,15 +1685,27 @@ const LIMITS = {
 };
 
 let users = [
-  {id:'USR001',name:'Mohammed Al Rashid',empId:'EMP-0001',email:'m.rashid@indoguna.ae',phone:'+971 50 123 4567',role:'admin',dept:'Management',status:'Active',access:'all',notes:'System administrator — full access',createdAt:'01-Jan-26',lastLogin:'Today 08:30'},
-  {id:'USR002',name:'Karim Benson',empId:'EMP-0002',email:'k.benson@indoguna.ae',phone:'+971 52 234 5678',role:'fm',dept:'Finance',status:'Active',access:'all',notes:'Finance Manager — approves up to AED 60K',createdAt:'01-Jan-26',lastLogin:'Today 09:15'},
-  {id:'USR003',name:'Rishabh Sharma',empId:'EMP-0005',email:'r.sharma@indoguna.ae',phone:'+971 55 345 6789',role:'afm',dept:'Finance',status:'Active',access:'dept',notes:'Asst. Finance Manager',createdAt:'01-Jan-26',lastLogin:'Today 08:55'},
-  {id:'USR004',name:'Aisha Al Zaabi',empId:'EMP-0010',email:'a.alzaabi@indoguna.ae',phone:'+971 56 456 7890',role:'fa',dept:'Finance',status:'Active',access:'dept',notes:'Finance Assistant — primary voucher entry',createdAt:'15-Jan-26',lastLogin:'Today 08:00'},
-  {id:'USR005',name:'Ms. Helene',empId:'EMP-0001H',email:'helene@indoguna.ae',phone:'+971 50 000 0001',role:'ch',dept:'Management',status:'Active',access:'all',notes:'Chairman — final approval above AED 60K',createdAt:'01-Jan-26',lastLogin:'Yesterday 16:00'},
-  {id:'USR006',name:'Omar Farouk',empId:'EMP-0015',email:'o.farouk@indoguna.ae',phone:'+971 54 567 8901',role:'ops',dept:'Operations',status:'Active',access:'dept',notes:'Dir. of Operations — food purchase approvals',createdAt:'01-Jan-26',lastLogin:'Today 07:45'},
-  {id:'USR007',name:'James Whitfield',empId:'EMP-0022',email:'j.whitfield@indoguna.ae',phone:'+971 55 678 9012',role:'eng',dept:'Engineering',status:'Active',access:'dept',notes:'Engineering Head — engineering approvals',createdAt:'01-Jan-26',lastLogin:'19-Feb-26 14:00'},
-  {id:'USR008',name:'Priya Nair',empId:'EMP-0018',email:'p.nair@indoguna.ae',phone:'+971 52 789 0123',role:'qa',dept:'QA',status:'Active',access:'dept',notes:'QA Manager — QA purchase approvals',createdAt:'01-Jan-26',lastLogin:'13-Feb-26 11:20'},
-  {id:'USR009',name:'Kamal Elsayed',empId:'EMP-0030',email:'k.elsayed@indoguna.ae',phone:'+971 50 890 1234',role:'fa',dept:'Finance',status:'Inactive',access:'dept',notes:'Previous Finance Assistant',createdAt:'01-Jan-26',lastLogin:'01-Jan-26 09:00'},
+  // System Admin
+  {id:'USR001',name:'Admin',empId:'EMP-0001',email:'admin@indoguna.ae',phone:'',role:'admin',dept:'Management',status:'Active',access:'all',notes:'System administrator — full access',createdAt:'12-May-26',lastLogin:'Never'},
+
+  // Finance Assistants
+  {id:'USR002',name:'Fin. Asst. 1 (Janine M)',empId:'EMP-0011',email:'janine.m@indoguna.ae',phone:'',role:'fa',dept:'Finance',status:'Active',access:'dept',notes:'Finance Assistant',createdAt:'12-May-26',lastLogin:'Never'},
+  {id:'USR003',name:'Fin. Asst. 2 (Richelle O)',empId:'EMP-0012',email:'richelle.o@indoguna.ae',phone:'',role:'fa',dept:'Finance',status:'Active',access:'dept',notes:'Finance Assistant',createdAt:'12-May-26',lastLogin:'Never'},
+  {id:'USR004',name:'Fin. Asst. 3 (Sameem)',empId:'EMP-0013',email:'sameem@indoguna.ae',phone:'',role:'fa',dept:'Finance',status:'Active',access:'dept',notes:'Finance Assistant',createdAt:'12-May-26',lastLogin:'Never'},
+
+  // Asst. Finance Manager
+  {id:'USR005',name:'Asst. Fin. Manager (Rishabh M)',empId:'EMP-0005',email:'rishabh.m@indoguna.ae',phone:'',role:'afm',dept:'Finance',status:'Active',access:'all',notes:'Asst. Finance Manager',createdAt:'12-May-26',lastLogin:'Never'},
+
+  // Finance Manager
+  {id:'USR006',name:'Fin. Manager (Benson Thomas)',empId:'EMP-0002',email:'benson.thomas@indoguna.ae',phone:'',role:'fm',dept:'Finance',status:'Active',access:'all',notes:'Finance Manager — approves up to AED 60K',createdAt:'12-May-26',lastLogin:'Never'},
+
+  // Chairman
+  {id:'USR007',name:'Chairman (Helene Raudaschl)',empId:'EMP-0001H',email:'helene@indoguna.ae',phone:'',role:'ch',dept:'Management',status:'Active',access:'all',notes:'Chairman — final approval above AED 60K',createdAt:'12-May-26',lastLogin:'Never'},
+
+  // Operational roles
+  {id:'USR008',name:'Dir. of Operations',empId:'EMP-0015',email:'ops@indoguna.ae',phone:'',role:'ops',dept:'Operations',status:'Active',access:'dept',notes:'Director of Operations — food purchase approvals',createdAt:'12-May-26',lastLogin:'Never'},
+  {id:'USR009',name:'Engineering Head',empId:'EMP-0022',email:'engineering@indoguna.ae',phone:'',role:'eng',dept:'Engineering',status:'Active',access:'dept',notes:'Engineering Head — engineering purchase approvals',createdAt:'12-May-26',lastLogin:'Never'},
+  {id:'USR010',name:'QA Manager',empId:'EMP-0018',email:'qa@indoguna.ae',phone:'',role:'qa',dept:'QA',status:'Active',access:'dept',notes:'QA Manager — QA purchase approvals',createdAt:'12-May-26',lastLogin:'Never'},
 ];
 
 /* ── NOTIFICATIONS ─────────────────────── */
@@ -1714,7 +1726,7 @@ let vouchers = [
    date:'01-Jan-26',cur:'AED',amount:75000,vat:3750,total:78750,
    lines:[{sapInv:'16300',vendorInv:'AFE-2026-0100',desc:'Cold storage facility — Phase 1 mobilisation',amount:75000,vatExempt:false,vat:3750,total:78750}],
    terms:'Contract value AED 250,000 — 3 instalments',
-   status:'closed',pre_by:'USR007',afm_by:'USR003',fm_by:'USR002',ch_by:'USR005',sub_by:'USR004',dept:'Engineering',
+   status:'closed',pre_by:'USR009',afm_by:'USR005',fm_by:'USR006',ch_by:'USR007',sub_by:'USR002',dept:'Engineering',
    txn_ref:'TXN-2026-00310',txn_date:'15-Jan-26',
    docs:{0:true,1:true,2:true,3:false,4:true,5:true,6:false,7:false},
    attachments:[],
@@ -1727,7 +1739,7 @@ let vouchers = [
    date:'01-Feb-26',cur:'AED',amount:95000,vat:4750,total:99750,
    lines:[{sapInv:'16410',vendorInv:'AFE-2026-0180',desc:'Cold storage facility — Phase 2 structural works',amount:95000,vatExempt:false,vat:4750,total:99750}],
    terms:'Instalment 2 of 3',
-   status:'pending_fm',pre_by:'USR007',afm_by:'USR003',fm_by:'',ch_by:'',sub_by:'USR004',dept:'Engineering',
+   status:'pending_fm',pre_by:'USR009',afm_by:'USR005',fm_by:'',ch_by:'',sub_by:'USR002',dept:'Engineering',
    txn_ref:'',txn_date:'',
    docs:{0:true,1:false,2:true,3:false,4:false,5:true,6:false,7:false},
    attachments:[],
@@ -1740,7 +1752,7 @@ let vouchers = [
    date:'05-Jan-26',cur:'USD',amount:50000,vat:0,total:50000,
    lines:[{sapInv:'DP-001',vendorInv:'USO-DPMT-2601',desc:'Down payment — Frozen beef shipment Q1 2026',amount:50000,vatExempt:true,vat:0,total:50000}],
    terms:'Balance payable on delivery',
-   status:'closed',pre_by:'N/A',afm_by:'USR003',fm_by:'USR002',ch_by:'USR005',sub_by:'USR004',dept:'Operations',
+   status:'closed',pre_by:'N/A',afm_by:'USR005',fm_by:'USR006',ch_by:'USR007',sub_by:'USR002',dept:'Operations',
    txn_ref:'TXN-2026-00210',txn_date:'08-Jan-26',
    docs:{0:true,1:false,2:true,3:false,4:false,5:false,6:false,7:false},
    attachments:[],
@@ -1752,7 +1764,7 @@ let vouchers = [
    date:'19-Feb-26',cur:'USD',amount:145701.80,vat:0,total:145701.80,
    lines:[{sapInv:'16511',vendorInv:'Q2462',desc:'BF BNLS PLATE SHORT PLATE 9X22 — 22,789.60 KGS @ USD 6.39 EACH',amount:145701.80,vatExempt:false,vat:0,total:145701.80}],
    terms:'PAYMENT TERMS - 90 DAYS\nDUE DATE: 17.02.2026',
-   status:'pre_pending',pre_by:'',afm_by:'',fm_by:'',ch_by:'',sub_by:'USR004',dept:'Operations',
+   status:'pre_pending',pre_by:'',afm_by:'',fm_by:'',ch_by:'',sub_by:'USR002',dept:'Operations',
    txn_ref:'',txn_date:'',
    docs:{0:true,1:true,2:true,3:true,4:false,5:true,6:true,7:false},
    attachments:[{name:'Invoice_Q2462.pdf',size:'842 KB',type:'pdf',data:null},{name:'PO_7697.pdf',size:'210 KB',type:'pdf',data:null}],
@@ -1767,7 +1779,7 @@ let vouchers = [
      {sapInv:'16491',vendorInv:'AFE-2026-0232',desc:'Electrical panel upgrade — level 2 warehouse',amount:52000,vatExempt:false,vat:2600,total:54600},
      {sapInv:'16492',vendorInv:'AFE-2026-0233',desc:'Spare parts and consumables',amount:30000,vatExempt:false,vat:1000,total:31000},
    ],
-   terms:'',status:'pre_pending',pre_by:'',afm_by:'',fm_by:'',ch_by:'',sub_by:'USR004',dept:'Engineering',
+   terms:'',status:'pre_pending',pre_by:'',afm_by:'',fm_by:'',ch_by:'',sub_by:'USR002',dept:'Engineering',
    txn_ref:'',txn_date:'',
    docs:{0:true,1:false,2:true,3:false,4:false,5:true,6:false,7:false},
    attachments:[{name:'Quote_HVAC_2026.pdf',size:'1.2 MB',type:'pdf',data:null}],
@@ -1778,7 +1790,7 @@ let vouchers = [
    isParent:false, contractCeiling:null, parentId:null, linkedAdvanceId:null,
    date:'12-Feb-26',cur:'AED',amount:18500,vat:925,total:19425,
    lines:[{sapInv:'16455',vendorInv:'SGS-UAE-7821',desc:'Quality audit and certification services Q1 2026',amount:18500,vatExempt:false,vat:925,total:19425}],
-   terms:'',status:'pending_afm',pre_by:'USR008',afm_by:'',fm_by:'',ch_by:'',sub_by:'USR004',dept:'QA',
+   terms:'',status:'pending_afm',pre_by:'USR010',afm_by:'',fm_by:'',ch_by:'',sub_by:'USR002',dept:'QA',
    txn_ref:'',txn_date:'',
    docs:{0:true,1:false,2:true,3:false,4:true,5:true,6:false,7:false},
    attachments:[{name:'SGS_Invoice_Q1_2026.pdf',size:'560 KB',type:'pdf',data:null}],
@@ -1789,7 +1801,7 @@ let vouchers = [
    isParent:false, contractCeiling:null, parentId:null, linkedAdvanceId:null,
    date:'10-Feb-26',cur:'AED',amount:42000,vat:2100,total:44100,
    lines:[{sapInv:'16420',vendorInv:'JAFZA-LIC-26',desc:'Annual trade license renewal 2026',amount:42000,vatExempt:false,vat:2100,total:44100}],
-   terms:'',status:'pending_fm',pre_by:'N/A',afm_by:'USR003',fm_by:'',ch_by:'',sub_by:'USR004',dept:'Finance',
+   terms:'',status:'pending_fm',pre_by:'N/A',afm_by:'USR005',fm_by:'',ch_by:'',sub_by:'USR002',dept:'Finance',
    txn_ref:'',txn_date:'',
    docs:{0:true,1:false,2:true,3:false,4:false,5:true,6:false,7:false},
    attachments:[{name:'License_Renewal_Invoice.pdf',size:'290 KB',type:'pdf',data:null}],
@@ -1804,7 +1816,7 @@ let vouchers = [
      {sapInv:'',vendorInv:'',desc:'Hotel accommodation — 4 nights Riyadh',amount:4100,vatExempt:true,vat:0,total:4100},
      {sapInv:'',vendorInv:'',desc:'Ground transport & meals',amount:1200,vatExempt:true,vat:0,total:1200},
    ],
-   terms:'',status:'approved',pre_by:'N/A',afm_by:'USR003',fm_by:'USR002',ch_by:'',sub_by:'USR004',dept:'Finance',
+   terms:'',status:'approved',pre_by:'N/A',afm_by:'USR005',fm_by:'USR006',ch_by:'',sub_by:'USR002',dept:'Finance',
    txn_ref:'',txn_date:'',
    docs:{0:false,1:false,2:false,3:false,4:true,5:true,6:false,7:false},
    attachments:[{name:'Travel_Receipts.pdf',size:'1.1 MB',type:'pdf',data:null}],
@@ -1815,7 +1827,7 @@ let vouchers = [
    isParent:false, contractCeiling:null, parentId:null, linkedAdvanceId:null,
    date:'01-Feb-26',cur:'AED',amount:12400,vat:620,total:13020,
    lines:[{sapInv:'16390',vendorInv:'ETI-2025-Q4-09',desc:'Telecom services Q4 2025',amount:12400,vatExempt:false,vat:620,total:13020}],
-   terms:'',status:'closed',pre_by:'N/A',afm_by:'USR003',fm_by:'USR002',ch_by:'',sub_by:'USR004',dept:'Finance',
+   terms:'',status:'closed',pre_by:'N/A',afm_by:'USR005',fm_by:'USR006',ch_by:'',sub_by:'USR002',dept:'Finance',
    txn_ref:'TXN-2026-00482',txn_date:'03-Feb-26',
    docs:{0:true,1:false,2:true,3:false,4:false,5:true,6:false,7:true},
    attachments:[{name:'Etisalat_Invoice_Q4.pdf',size:'445 KB',type:'pdf',data:null}],
