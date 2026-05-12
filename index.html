@@ -1972,25 +1972,24 @@ function renderVouchersPage() {
 function renderVoucherTable(cid, rows, compact) {
   const c = document.getElementById(cid);
   if (!rows.length) { c.innerHTML = '<div class="dt-empty"><i class="ti ti-inbox" style="font-size:28px;display:block;margin-bottom:8px;color:var(--ink-faint)"></i>No vouchers in your access scope</div>'; return; }
-  // Use minmax so columns auto-fit without overflow
   const cols = compact
-    ? 'minmax(100px,auto) minmax(120px,2fr) minmax(110px,auto) minmax(100px,auto) minmax(130px,auto)'
-    : 'minmax(100px,auto) minmax(120px,2fr) minmax(110px,auto) minmax(100px,auto) minmax(130px,auto) minmax(80px,auto)';
+    ? 'minmax(100px,auto) minmax(140px,2fr) minmax(120px,auto) minmax(110px,auto) minmax(130px,auto)'
+    : 'minmax(100px,auto) minmax(140px,2fr) minmax(120px,auto) minmax(110px,auto) minmax(130px,auto) minmax(80px,auto)';
   let html = `<div class="dt-head" style="grid-template-columns:${cols}">
-    <div class="dt-head-cell">Voucher No</div>
-    <div class="dt-head-cell">Payee</div>
-    <div class="dt-head-cell">Category</div>
-    <div class="dt-head-cell">Amount</div>
-    <div class="dt-head-cell">Status</div>
-    ${!compact?'<div class="dt-head-cell">Date</div>':''}
+    <div class="dt-head-cell" style="text-align:left">Voucher No</div>
+    <div class="dt-head-cell" style="text-align:left">Payee</div>
+    <div class="dt-head-cell" style="text-align:right">Category</div>
+    <div class="dt-head-cell" style="text-align:right">Amount</div>
+    <div class="dt-head-cell" style="text-align:right">Status</div>
+    ${!compact?'<div class="dt-head-cell" style="text-align:right">Date</div>':''}
   </div>`;
   html += rows.map(v => `<div class="dt-row" style="grid-template-columns:${cols}" onclick="viewV('${v.id}')">
-    <div class="dt-cell mono" style="font-size:10.5px">${v.id}</div>
-    <div class="dt-cell bold" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;padding-top:11px;padding-bottom:11px;line-height:1.3">${v.payee}</div>
-    <div class="dt-cell" style="overflow:visible">${pillHtml(CATS[v.cat].label, v.cat==='food'?'pill-red':v.cat==='eng'?'pill-gold':v.cat==='qa'?'pill-navy':'pill-grey')}</div>
-    <div class="dt-cell bold" style="white-space:nowrap">${fmtAmt(v.total,v.cur)}</div>
-    <div class="dt-cell" style="overflow:visible">${pillHtml(STATUS_MAP[v.status]||v.status, STATUS_PILL[v.status]||'pill-grey')}</div>
-    ${!compact?`<div class="dt-cell muted" style="white-space:nowrap;font-size:11px">${v.date}</div>`:''}
+    <div class="dt-cell mono" style="font-size:10.5px;justify-content:flex-start">${v.id}</div>
+    <div class="dt-cell bold" style="justify-content:flex-start;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;padding-top:11px;padding-bottom:11px;line-height:1.3">${v.payee}</div>
+    <div class="dt-cell" style="justify-content:flex-end">${pillHtml(CATS[v.cat].label, v.cat==='food'?'pill-red':v.cat==='eng'?'pill-gold':v.cat==='qa'?'pill-navy':'pill-grey')}</div>
+    <div class="dt-cell bold" style="justify-content:flex-end;white-space:nowrap;font-family:'DM Mono',monospace;font-size:11px">${v.total > 0 ? fmtAmt(v.total,v.cur) : '—'}</div>
+    <div class="dt-cell" style="justify-content:flex-end">${v.isDraft ? `<span class="pill pill-grey"><i class="ti ti-pencil" style="font-size:9px"></i> Draft</span>` : pillHtml(STATUS_MAP[v.status]||v.status, STATUS_PILL[v.status]||'pill-grey')}</div>
+    ${!compact?`<div class="dt-cell muted" style="justify-content:flex-end;white-space:nowrap;font-size:11px">${v.date}</div>`:''}
   </div>`).join('');
   c.innerHTML = html;
 }
@@ -2003,11 +2002,81 @@ function viewV(id) {
   if (!v) return;
   const user = cu();
   if (!canActOnVoucher(user, v) && user.role !== 'admin') { alert('You do not have access to this voucher.'); return; }
+
+  // Drafts open in edit mode for FA/admin
+  if (v.isDraft && ['fa','admin'].includes(user.role)) {
+    editDraft(id);
+    return;
+  }
+
   window._viewingVId = id;
   document.getElementById('view-crumb').textContent = id + ' — ' + v.payee;
   renderView(v);
   nav('view', null);
   document.querySelectorAll('.sb-item')[1].classList.add('active');
+}
+
+function deleteDraft(id) {
+  openConfirm('Delete Draft', 'Permanently delete draft voucher ' + id + '? This cannot be undone.', 'Delete', 'danger', null, () => {
+    const i = vouchers.findIndex(v => v.id === id);
+    if (i >= 0) vouchers.splice(i, 1);
+    autoSave();
+    closeConfirm();
+    nav('vouchers', document.querySelectorAll('.sb-item')[1]);
+    refreshSidebar();
+  });
+}
+
+function editDraft(id) {
+  const v = vouchers.find(x => x.id === id && x.isDraft);
+  if (!v) return;
+  // Load draft data into _newLines and _newDocFiles
+  _newLines = JSON.parse(JSON.stringify(v.lines || [{sapInv:'',vendorInv:'',desc:'',amount:0,vatExempt:false,vat:0,total:0}]));
+  _newDocFiles = {};
+  // Restore per-doc attachments
+  (v.attachments || []).forEach(a => { if (a.docIdx !== undefined) _newDocFiles[a.docIdx] = a; });
+  window._nfLinkedAdvanceId = v.linkedAdvanceId || null;
+  // Navigate to new-voucher page with draft context
+  nav('new-voucher', document.getElementById('sb-new-voucher'));
+  // Populate form fields after render
+  setTimeout(() => {
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('nf-paytype', v.payType);
+    set('nf-paynature', v.payNature);
+    set('nf-cur', v.cur);
+    set('nf-sapout', v.sapOutRef);
+    set('nf-sapvendor', v.sapVendor);
+    set('nf-payee', v.payee);
+    set('nf-cat', v.cat);
+    set('nf-date', v.date);
+    set('nf-terms', v.terms);
+    // Update form header to show draft ID
+    const sub = document.querySelector('#page-new-voucher .card-header-sub');
+    if (sub) sub.textContent = id + ' (Draft)';
+    // Update action buttons to save back to same draft ID
+    const submitBtn = document.querySelector('#page-new-voucher .card-footer .btn.gold');
+    const draftBtn = document.querySelector('#page-new-voucher .card-footer .btn:not(.gold):not(:first-child)');
+    if (submitBtn) submitBtn.setAttribute('onclick', `saveNewVoucher('${id}')`);
+    if (draftBtn) draftBtn.setAttribute('onclick', `saveDraft('${id}')`);
+    // Trigger banners and checklist update
+    updatePayNatureBanner();
+    updateCatBanner();
+    renderNewChecklist();
+    // Restore checkbox states
+    if (v.docs) {
+      Object.entries(v.docs).forEach(([i, checked]) => {
+        const chk = document.getElementById('nchk-'+i);
+        const row = document.getElementById('nci-row-'+i);
+        if (chk) chk.checked = checked;
+        if (row && checked) row.classList.add('checked');
+      });
+    }
+    // Show advance link if exists
+    if (v.linkedAdvanceId) {
+      selectNewFormAdvance(v.linkedAdvanceId);
+    }
+    initVendorSearch();
+  }, 80);
 }
 
 function renderView(v) {
@@ -2220,7 +2289,10 @@ function renderView(v) {
     </div>
 
     <div class="card-footer">
-      ${btns||`<span style="font-size:11px;color:var(--ink-faint)">No actions available for your role at this stage</span>`}
+      ${v.isDraft && ['fa','admin'].includes(user.role)
+        ? `<button class="btn gold" onclick="editDraft('${v.id}')"><i class="ti ti-edit"></i> Edit Draft</button>
+           <button class="btn danger" onclick="deleteDraft('${v.id}')"><i class="ti ti-trash"></i> Delete Draft</button>`
+        : btns||`<span style="font-size:11px;color:var(--ink-faint)">No actions available for your role at this stage</span>`}
     </div>`;
 }
 
