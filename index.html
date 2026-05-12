@@ -1710,11 +1710,11 @@ let users = [
 
 /* ── NOTIFICATIONS ─────────────────────── */
 let notifications = [
-  {id:1,title:'Pre-Approval Required — VU014-USD',body:'United Source One voucher (USD 145,701.80) awaits your approval as Dir. of Operations.',time:'Today 09:14',unread:true,role:'ops'},
-  {id:2,title:'Pre-Approval Required — VU013-AED',body:'Al Futtaim Engineering voucher (AED 89,250) awaits your approval as Engineering Head.',time:'Today 08:52',unread:true,role:'eng'},
-  {id:3,title:'Voucher Pre-Approved — VU012-AED',body:'SGS Gulf Limited voucher pre-approved by QA Manager. Now with Asst. Finance Manager.',time:'Yesterday 16:30',unread:true,role:'afm'},
-  {id:4,title:'Pending Finance Manager — VU011-AED',body:'JAFZA Authority voucher (AED 44,100) approved by Asst. FM — awaits Finance Manager.',time:'Yesterday 14:10',unread:false,role:'fm'},
-  {id:5,title:'Voucher Closed — VU009-AED',body:'Etisalat voucher (AED 13,020) closed. Txn Ref: TXN-2026-00482.',time:'03-Feb-26 11:00',unread:false,role:'fa'},
+  {id:1,title:'Pre-Approval Required — VU-2026-014',body:'United Source One voucher (USD 145,701.80) awaits your approval as Dir. of Operations.',time:'Today 09:14',unread:true,role:'ops',voucherId:'VU-2026-014'},
+  {id:2,title:'Pre-Approval Required — VU-2026-013',body:'Al Futtaim Engineering voucher (AED 174,850) awaits your approval as Engineering Head.',time:'Today 08:52',unread:true,role:'eng',voucherId:'VU-2026-013'},
+  {id:3,title:'Voucher Pre-Approved — VU-2026-012',body:'SGS Gulf Limited voucher pre-approved by QA Manager. Now with Asst. Finance Manager.',time:'Yesterday 16:30',unread:true,role:'afm',voucherId:'VU-2026-012'},
+  {id:4,title:'Pending Finance Manager — VU-2026-011',body:'JAFZA Authority voucher (AED 44,100) approved by Asst. FM — awaits Finance Manager.',time:'Yesterday 14:10',unread:false,role:'fm',voucherId:'VU-2026-011'},
+  {id:5,title:'Voucher Closed — VU-2026-009',body:'Etisalat voucher (AED 13,020) closed. Txn Ref: TXN-2026-00482.',time:'03-Feb-26 11:00',unread:false,role:'fa',voucherId:'VU-2026-009'},
 ];
 
 /* ── VOUCHERS ───────────────────────────── */
@@ -2331,23 +2331,23 @@ function doAct(action, vid) {
       v.txn_ref = ref; v.txn_date = today(); v.status = 'closed';
       v.audit.push({action:'Bank transaction recorded — '+ref, by:user.name, role:ROLES[user.role]?.label, time:nowStr(), color:'#085041'});
       v.audit.push({action:'Voucher closed and filed', by:user.name, role:ROLES[user.role]?.label, time:nowStr(), color:'#085041'});
-      pushNotif('Voucher Closed — '+vid, v.payee+' voucher closed. Txn: '+ref, 'fa');
+      pushNotif('Voucher Closed — '+vid, v.payee+' voucher closed. Txn: '+ref, 'fa', vid);
       autoSave(); closeConfirm(); renderView(v); refreshSidebar();
     });
   } else if (action === 'reject') {
     openConfirm('Reject Voucher', 'Reject voucher '+vid+' for '+fmtAmt(v.total,v.cur)+'? This cannot be undone.', 'Reject', 'danger', null, () => {
       v.status = 'rejected';
       v.audit.push({action:'Rejected by '+user.name, by:user.name, role:ROLES[user.role]?.label, time:nowStr(), color:'#8B1F1F'});
-      pushNotif('Voucher Rejected — '+vid, v.payee+' voucher rejected by '+user.name+'.', 'fa');
+      pushNotif('Voucher Rejected — '+vid, v.payee+' voucher rejected by '+user.name+'.', 'fa', vid);
       autoSave(); closeConfirm(); renderView(v); refreshSidebar();
     });
   } else {
     const needsCh = v.total > 60000;
     const cfgs = {
-      pre_approve: {label:'Pre-Approve', fn:()=>{ v.pre_by=currentUserId; v.status='pending_afm'; v.audit.push({action:'Pre-approved by '+user.name,by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif('Pre-Approved — '+vid,v.payee+' voucher now with Asst. Finance Manager.','afm'); }},
-      afm_approve: {label:'Approve (Asst. FM)', fn:()=>{ v.afm_by=currentUserId; v.status='pending_fm'; v.audit.push({action:'Approved by Asst. Finance Manager',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif('Approved by Asst. FM — '+vid,v.payee+' voucher now with Finance Manager.','fm'); }},
-      fm_approve:  {label:'Approve (Finance Mgr)', fn:()=>{ v.fm_by=currentUserId; v.status=needsCh?'pending_ch':'approved'; v.audit.push({action:'Approved by Finance Manager',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif(needsCh?'Chairman Approval Required — '+vid:'Voucher Approved — '+vid, needsCh?v.payee+' requires Chairman approval (>AED 60K).':v.payee+' approved. Ready for bank transfer.', needsCh?'ch':'fa'); }},
-      ch_approve:  {label:'Approve (Chairman)', fn:()=>{ v.ch_by=currentUserId; v.status='approved'; v.audit.push({action:'Approved by Chairman',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif('Approved by Chairman — '+vid,v.payee+' fully approved. Ready for bank transfer.','fa'); }},
+      pre_approve: {label:'Pre-Approve', fn:()=>{ v.pre_by=currentUserId; v.status='pending_afm'; v.audit.push({action:'Pre-approved by '+user.name,by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif('Pre-Approved — '+vid,v.payee+' voucher now with Asst. Finance Manager.','afm',vid); }},
+      afm_approve: {label:'Approve (Asst. FM)', fn:()=>{ v.afm_by=currentUserId; v.status='pending_fm'; v.audit.push({action:'Approved by Asst. Finance Manager',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif('Approved by Asst. FM — '+vid,v.payee+' voucher now with Finance Manager.','fm',vid); }},
+      fm_approve:  {label:'Approve (Finance Mgr)', fn:()=>{ v.fm_by=currentUserId; v.status=needsCh?'pending_ch':'approved'; v.audit.push({action:'Approved by Finance Manager',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif(needsCh?'Chairman Approval Required — '+vid:'Voucher Approved — '+vid, needsCh?v.payee+' requires Chairman approval (>AED 60K).':v.payee+' approved. Ready for bank transfer.', needsCh?'ch':'fa',vid); }},
+      ch_approve:  {label:'Approve (Chairman)', fn:()=>{ v.ch_by=currentUserId; v.status='approved'; v.audit.push({action:'Approved by Chairman',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'#2D6A2D'}); pushNotif('Approved by Chairman — '+vid,v.payee+' fully approved. Ready for bank transfer.','fa',vid); }},
     };
     const cfg = cfgs[action]; if (!cfg) return;
     openConfirm('Confirm Approval', 'Approve voucher '+vid+' for '+fmtAmt(v.total,v.cur)+'?', cfg.label, 'success', null, () => {
@@ -2863,7 +2863,7 @@ function saveNewVoucher(draftId) {
   _newDocFiles = {};
   autoSave();
   const cat2 = CATS[cat];
-  pushNotif('Voucher Submitted — '+id, payee+' ('+fmtAmt(newV.total,newV.cur)+', '+validLines.length+' line'+(validLines.length!==1?'s':'')+') submitted. Awaiting '+(needsPre?cat2.preLabel:'Asst. Finance Manager')+'.', needsPre?cat2.pre:'afm');
+  pushNotif('Voucher Submitted — '+id, payee+' ('+fmtAmt(newV.total,newV.cur)+', '+validLines.length+' line'+(validLines.length!==1?'s':'')+') submitted. Awaiting '+(needsPre?cat2.preLabel:'Asst. Finance Manager')+'.', needsPre?cat2.pre:'afm', id);
   nav('vouchers', document.querySelectorAll('.sb-item')[1]);
   refreshSidebar();
 }
@@ -3160,23 +3160,57 @@ function renderReports() {
 /* ══════════════════════════════════════════
    NOTIFICATIONS
 ══════════════════════════════════════════ */
-function pushNotif(title, body, role) {
-  notifications.unshift({id:Date.now(), title, body, time:'Just now', unread:true, role});
+function pushNotif(title, body, role, voucherId) {
+  notifications.unshift({id:Date.now(), title, body, time:'Just now', unread:true, role, voucherId:voucherId||null});
   refreshSidebar();
 }
 function renderNotifications() {
   const c = document.getElementById('notif-list');
   if (!notifications.length) { c.innerHTML = '<div class="dt-empty">No notifications</div>'; return; }
-  c.innerHTML = notifications.map(n=>`<div class="notif-item ${n.unread?'unread':''}" onclick="readNotif(${n.id})">
+  c.innerHTML = notifications.map(n => {
+    // Extract voucher ID from title as fallback
+    let vid = n.voucherId;
+    if (!vid && n.title) { const m = n.title.match(/((?:PV|VU)-\d{4}-[A-Z0-9-]+)/); if (m) vid = m[1]; }
+    const hasVoucher = !!(vid && vouchers.find(x => x.id === vid));
+    return `<div class="notif-item ${n.unread?'unread':''}" onclick="openNotif(${n.id})" style="cursor:pointer">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
-      <div>
+      <div style="flex:1">
         <div class="notif-title">${n.title}</div>
         <div class="notif-body">${n.body}</div>
-        <div class="notif-time"><i class="ti ti-clock" style="font-size:9px"></i> ${n.time} &nbsp;·&nbsp; <i class="ti ti-mail" style="font-size:9px"></i> Email sent to ${n.role.toUpperCase()}</div>
+        <div class="notif-time" style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <span><i class="ti ti-clock" style="font-size:9px"></i> ${n.time}</span>
+          ${hasVoucher ? `<span style="color:var(--navy-light);font-weight:600;font-size:10px"><i class="ti ti-arrow-right" style="font-size:10px"></i> Open ${vid}</span>` : ''}
+        </div>
       </div>
-      ${n.unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--navy-light);flex-shrink:0;margin-top:3px"></div>':''}
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        ${n.unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--navy-light)"></div>':''}
+        ${hasVoucher?'<i class="ti ti-chevron-right" style="font-size:14px;color:var(--ink-faint)"></i>':''}
+      </div>
     </div>
-  </div>`).join('');
+  </div>`;
+  }).join('');
+}
+function openNotif(id) {
+  const n = notifications.find(x => x.id === id); if (!n) return;
+  n.unread = false;
+  autoSave();
+  renderNotifications(); refreshSidebar();
+
+  // Get voucherId — from field or extract from title (e.g. "Voucher Closed — VU-2026-009")
+  let vid = n.voucherId;
+  if (!vid && n.title) {
+    const match = n.title.match(/((?:PV|VU)-\d{4}-[A-Z0-9-]+)/);
+    if (match) vid = match[1];
+  }
+
+  if (vid) {
+    const v = vouchers.find(x => x.id === vid);
+    if (v) {
+      viewV(vid);
+    } else {
+      alert('Voucher ' + vid + ' not found — it may have been deleted.');
+    }
+  }
 }
 function readNotif(id) { const n=notifications.find(x=>x.id===id); if(n) n.unread=false; renderNotifications(); refreshSidebar(); }
 function markAllRead() { notifications.forEach(n=>n.unread=false); renderNotifications(); refreshSidebar(); }
@@ -3563,22 +3597,22 @@ function confirmSigApprove() {
     pre_approve: ()=>{
       v.pre_by=currentUserId; v.pre_sig=sigRecord; v.status='pending_afm';
       v.audit.push({action:'Pre-approved & signed by '+user.name,by:user.name,role:ROLES[user.role]?.label,time:ts,color:'#2D6A2D'});
-      pushNotif('Pre-Approved — '+v.id,v.payee+' voucher now with Asst. Finance Manager.','afm');
+      pushNotif('Pre-Approved — '+v.id,v.payee+' voucher now with Asst. Finance Manager.','afm',v.id);
     },
     afm_approve: ()=>{
       v.afm_by=currentUserId; v.afm_sig=sigRecord; v.status='pending_fm';
       v.audit.push({action:'Approved & signed by Asst. Finance Manager: '+user.name,by:user.name,role:ROLES[user.role]?.label,time:ts,color:'#2D6A2D'});
-      pushNotif('Approved by Asst. FM — '+v.id,v.payee+' voucher now with Finance Manager.','fm');
+      pushNotif('Approved by Asst. FM — '+v.id,v.payee+' voucher now with Finance Manager.','fm',v.id);
     },
     fm_approve: ()=>{
       v.fm_by=currentUserId; v.fm_sig=sigRecord; v.status=needsCh?'pending_ch':'approved';
       v.audit.push({action:'Approved & signed by Finance Manager: '+user.name,by:user.name,role:ROLES[user.role]?.label,time:ts,color:'#2D6A2D'});
-      pushNotif(needsCh?'Chairman Required — '+v.id:'Voucher Approved — '+v.id, needsCh?v.payee+' requires Chairman approval.':v.payee+' approved. Ready for bank transfer.', needsCh?'ch':'fa');
+      pushNotif(needsCh?'Chairman Required — '+v.id:'Voucher Approved — '+v.id, needsCh?v.payee+' requires Chairman approval.':v.payee+' approved. Ready for bank transfer.', needsCh?'ch':'fa',v.id);
     },
     ch_approve: ()=>{
       v.ch_by=currentUserId; v.ch_sig=sigRecord; v.status='approved';
       v.audit.push({action:'Approved & signed by Chairman: '+user.name,by:user.name,role:ROLES[user.role]?.label,time:ts,color:'#2D6A2D'});
-      pushNotif('Approved by Chairman — '+v.id,v.payee+' fully approved. Ready for bank transfer.','fa');
+      pushNotif('Approved by Chairman — '+v.id,v.payee+' fully approved. Ready for bank transfer.','fa',v.id);
     },
   };
   if (cfgs[_sigApproveAction]) cfgs[_sigApproveAction]();
@@ -3832,7 +3866,7 @@ function rejectVoucher(vid) {
       v.status='rejected';
       v.rejectionReason=reason;
       v.audit.push({action:'Rejected by '+user.name+': "'+reason+'"',by:user.name,role:ROLES[user.role]?.label,time:nowStr(),color:'var(--red)'});
-      pushNotif('Voucher Rejected — '+vid,v.payee+' voucher rejected by '+user.name+'. Reason: '+reason,'fa');
+      pushNotif('Voucher Rejected — '+vid,v.payee+' voucher rejected by '+user.name+'. Reason: '+reason,'fa',vid);
       autoSave(); closeConfirm(); renderView(v); refreshSidebar();
     }
   );
@@ -4041,7 +4075,7 @@ function createChildVoucher(parentId) {
   vouchers.unshift(child);
   autoSave();
   viewV(childId);
-  pushNotif('Child Voucher Created — ' + childId, `Instalment ${children.length + 1} created under ${parentId} (${parent.payee}).`, 'fa');
+  pushNotif('Child Voucher Created — ' + childId, `Instalment ${children.length + 1} created under ${parentId} (${parent.payee}).`, 'fa', childId);
   refreshSidebar();
 }
 
